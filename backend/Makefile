@@ -1,9 +1,9 @@
 build:
-	go build -o bin ./cmd/message-app/
+	go build -o bin ./cmd/
 
 run:
-	go build -o ./bin ./cmd/message-app/
-	./bin/message-app
+	go build -o ./bin ./cmd/
+	./bin/cmd
 
 clean:
 	go clean 
