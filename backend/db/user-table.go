@@ -11,6 +11,7 @@ type User struct {
 	Token        sql.NullString
 }
 
+
 func (s Storage) SaveUser(ctx context.Context, user User) error {
 	_, err := s.Db.Exec(ctx, "INSERT INTO USERS (username, password) VALUES($1, $2)", user.Username, user.PasswordHash)
 	return err

@@ -1,11 +1,15 @@
 package routes
 
 import (
+	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
 	"github.com/Alexsoup97/message-app/internal/service"
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type UserRouter struct {
@@ -15,6 +19,7 @@ type UserRouter struct {
 type IUserService interface {
 	Login(username string, passwor string) (string, error)
 	CreateAccount(username string, password string) error
+	checkUserToken(token string) (string, error)
 }
 
 func CreateUserRouter(userService IUserService) chi.Router {
@@ -37,6 +42,16 @@ func (router UserRouter) createAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err := router.userService.CreateAccount(user, pass)
+
+	var e *pgconn.PgError
+	if errors.As(err, &e) && e.Code == pgerrcode.UniqueViolation {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"message": "User already exist. Please enter a new username",
+		})
+		return
+	}
 
 	if err != nil {
 		log.Print(err)
@@ -74,4 +89,8 @@ func (router UserRouter) login(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, cookie)
 	w.WriteHeader(http.StatusOK)
+}
+
+func (router UserRouter) heartbeat(w http.ResponseWriter, r *http.Request){
+	w.WriteHeader(http.StatusOK)	
 }

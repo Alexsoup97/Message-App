@@ -71,7 +71,7 @@ export function SignIn(){
                     </FormControl>
                 <Typography level="body-sm">
                     Don't have an account?{' '}
-                    <Link href="#replace-with-a-link" level="title-sm">
+                    <Link href="signup" level="title-sm">
                         Sign up!
                     </Link>
                 </Typography>
