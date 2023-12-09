@@ -23,20 +23,22 @@ type EndpointContainer struct {
 
 func setupEndpoints(db *db.Storage, router chi.Router) {
 
+	routes.Configure()
 	endpointContainers := make([]EndpointContainer, 0)
 
 	//User Service
-	service := service.CreateUserService(db)
-	route := routes.CreateUserRouter(service)
+	usrService := service.CreateUserService(db)
+	route := routes.CreateUserRouter(usrService)
 	endpointContainers = append(endpointContainers, EndpointContainer{
-		service: service,
+		service: usrService,
 		router:  route,
 		prefix:  "/user",
 	})
 
-	route = routes.CreateMessageRouter(db)
+	msgService := service.CreateMessageService(db)
+	route = routes.CreateMessageRouter(db, msgService)
 	endpointContainers = append(endpointContainers, EndpointContainer{
-		service: service,
+		service: msgService,
 		router:  route,
 		prefix:  "/messages",
 	})

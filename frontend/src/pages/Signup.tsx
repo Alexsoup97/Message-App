@@ -44,7 +44,8 @@ export function Signup (){
                setSuccess(true) 
             }else{
                 let temp = await resp.json()
-                setErrorMessage(temp.message)
+                console.log(temp)
+                setErrorMessage(temp.error)
 
             }
         })

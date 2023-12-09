@@ -17,10 +17,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	storage := db.InitalizeDb()
-	defer storage.Db.Close()
+	storage, dbconn := db.InitalizeStorage()
+	defer dbconn.Close()
 
-	storage.CreateUserTables()
+	recreateTable := true
+	if recreateTable {
+		db.CreateUserTables(dbconn)
+		db.CreateConversationUserTable(dbconn)
+		db.CreateConversationSettingTable(dbconn)
+		db.CreateMessageTable(dbconn)
+	}
+
 	router := chi.NewRouter()
 
 	router.Use(cors.Handler(cors.Options{

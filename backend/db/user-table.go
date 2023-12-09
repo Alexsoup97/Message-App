@@ -3,6 +3,8 @@ package db
 import (
 	"context"
 	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type User struct {
@@ -11,15 +13,18 @@ type User struct {
 	Token        sql.NullString
 }
 
+type UserRepo struct {
+	db *pgxpool.Pool
+}
 
-func (s Storage) SaveUser(ctx context.Context, user User) error {
-	_, err := s.Db.Exec(ctx, "INSERT INTO USERS (username, password) VALUES($1, $2)", user.Username, user.PasswordHash)
+func (repo UserRepo) SaveUser(ctx context.Context, user User) error {
+	_, err := repo.db.Exec(ctx, "INSERT INTO USERS (username, password) VALUES($1, $2)", user.Username, user.PasswordHash)
 	return err
 }
 
-func (s Storage) GetUserByToken(ctx context.Context, token string) (string, error) {
+func (repo UserRepo) GetUserByToken(ctx context.Context, token string) (string, error) {
 	var user string
-	result := s.Db.QueryRow(ctx, "SELECT (LoginToken) FROM USERS WHERE logintoken=$1", token)
+	result := repo.db.QueryRow(ctx, "SELECT (username) FROM USERS WHERE logintoken=$1", token)
 
 	if err := result.Scan(&user); err != nil {
 		return "", err
@@ -28,21 +33,21 @@ func (s Storage) GetUserByToken(ctx context.Context, token string) (string, erro
 	return user, nil
 }
 
-func (s Storage) GetUserByName(ctx context.Context, username string) (User, error) {
+func (repo UserRepo) GetUserByName(ctx context.Context, username string) (User, error) {
 	var user User
-	result := s.Db.QueryRow(ctx, "SELECT * FROM USERS WHERE username=$1", username)
+	result := repo.db.QueryRow(ctx, "SELECT * FROM USERS WHERE username=$1", username)
 	if err := result.Scan(&user.Username, &user.PasswordHash, &user.Token); err != nil {
 		return user, err
 	}
 	return user, nil
 }
 
-func (s Storage) UpdateUserToken(ctx context.Context, user User) error {
+func (repo UserRepo) UpdateUserToken(ctx context.Context, user User) error {
 	user.Token.Valid = true
-	_, err := s.Db.Exec(ctx, "UPDATE USERS SET logintoken=$1 WHERE username=$2", user.Token, user.Username)
+	_, err := repo.db.Exec(ctx, "UPDATE USERS SET logintoken=$1 WHERE username=$2", user.Token, user.Username)
 	return err
 }
 
-func (s Storage) DeleteUser() {
+func (repo UserRepo) DeleteUser() {
 
 }

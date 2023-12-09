@@ -10,11 +10,11 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func AuthMiddleware(userStorage *db.Storage) func(http.Handler) http.Handler {
-	return authenticate(userStorage)
+func AuthMiddleware(storage *db.Storage) func(http.Handler) http.Handler {
+	return authenticate(storage)
 }
 
-func authenticate(userStorage *db.Storage) func(http.Handler) http.Handler {
+func authenticate(storage *db.Storage) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			cookie, err := r.Cookie("APIAuth")
@@ -29,7 +29,7 @@ func authenticate(userStorage *db.Storage) func(http.Handler) http.Handler {
 				return
 			}
 
-			user, err := userStorage.GetUserByToken(context.Background(), cookie.Value)
+			user, err := storage.UserRepo.GetUserByToken(context.Background(), cookie.Value)
 			if err != nil {
 				switch {
 				case err == pgx.ErrNoRows:

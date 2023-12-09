@@ -38,13 +38,13 @@ func (user_serv UserService) CreateAccount(username string, password string) err
 		Username:     sql.NullString{String: username, Valid: true},
 		PasswordHash: sql.NullString{String: hashedPass, Valid: true},
 	}
-	err = user_serv.database.SaveUser(ctx, *user)
+	err = user_serv.database.UserRepo.SaveUser(ctx, *user)
 	return err
 }
 
 func (user_serv UserService) Login(username string, password string) (string, error) {
 	ctx := context.Background()
-	user, err := user_serv.database.GetUserByName(ctx, username)
+	user, err := user_serv.database.UserRepo.GetUserByName(ctx, username)
 
 	if err != nil {
 		return "", UserNotFound
@@ -60,7 +60,7 @@ func (user_serv UserService) Login(username string, password string) (string, er
 
 	if !user.Token.Valid {
 		user.Token.String = generateRandomBytes(64)
-		err = user_serv.database.UpdateUserToken(ctx, user)
+		err = user_serv.database.UserRepo.UpdateUserToken(ctx, user)
 		if err != nil {
 			return "", err
 		}

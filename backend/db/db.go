@@ -10,10 +10,11 @@ import (
 )
 
 type Storage struct {
-	Db *pgxpool.Pool
+	MessageRepo MessageRepo
+	UserRepo    UserRepo
 }
 
-func InitalizeDb() *Storage {
+func InitalizeStorage() (*Storage, *pgxpool.Pool) {
 	dbPool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 
 	if err != nil {
@@ -22,12 +23,13 @@ func InitalizeDb() *Storage {
 	}
 
 	return &Storage{
-		Db: dbPool,
-	}
+		MessageRepo: MessageRepo{db: dbPool},
+		UserRepo:    UserRepo{db: dbPool},
+	}, dbPool
 }
 
-func (s Storage) CreateUserTables() {
-	_, err := s.Db.Exec(context.Background(),
+func CreateUserTables(db *pgxpool.Pool) {
+	_, err := db.Exec(context.Background(),
 		`DROP TABLE IF EXISTS users;
 		CREATE TABLE USERS(
 		Username varchar NOT NULL,
@@ -41,14 +43,15 @@ func (s Storage) CreateUserTables() {
 	}
 }
 
-func (s Storage) CreateMessageTable(){
-	_, err := s.Db.Exec(context.Background(),
+func CreateMessageTable(db *pgxpool.Pool) {
+	_, err := db.Exec(context.Background(),
 		`DROP TABLE IF EXISTS MESSAGES;
-		CREATE TABLE MESSAGE(
-		MessageId varchar NOT NULL
+		CREATE TABLE MESSAGES(
+		MessageId varchar NOT NULL,
 		ConversationId varchar NOT NULL,
 		UserId varchar NOT NULL,
-		message varchar NOT NULL
+		message varchar NOT NULL,
+		createdAt timestamp,
 		PRIMARY KEY(messageId)
 	) `)
 
@@ -57,12 +60,15 @@ func (s Storage) CreateMessageTable(){
 	}
 }
 
-func (s Storage) CreateConversationSettingTable(){	
-	_, err := s.Db.Exec(context.Background(),
-		`DROP TABLE IF EXISTS CONVERSATIONSETTING;
-		CREATE TABLE CONVERSATIONSETTING(
+func CreateConversationSettingTable(db *pgxpool.Pool) {
+	_, err := db.Exec(context.Background(),
+		`DROP TABLE IF EXISTS CONVERSATION_SETTINGS;
+		CREATE TABLE CONVERSATION_SETTINGS(
 		ConversationId varchar NOT NULL,
-		ConversationType int NOT NULL
+		ConversationName varchar,
+		ConversationType int NOT NULL, 
+		CreatedAt Timestamp,
+		lastMessage Timestamp,
 		PRIMARY KEY(ConversationId)
 	) `)
 
@@ -71,16 +77,14 @@ func (s Storage) CreateConversationSettingTable(){
 	}
 }
 
-}
+func CreateConversationUserTable(db *pgxpool.Pool) {
 
-func (s Storage) CreateConverstationTable(){
-
-	_, err := s.Db.Exec(context.Background(),
+	_, err := db.Exec(context.Background(),
 		`DROP TABLE IF EXISTS CONVERSATIONS;
-		CREATE TABLE CONVERSATIONS(
+		CREATE TABLE CONVERSATIONS (
 		ConversationId varchar NOT NULL,
 		UserId varchar NOT NULL,
-		PermissionLevel int 
+		PermissionLevel int,
 		PRIMARY KEY(ConversationId, UserId)
 	) `)
 
