@@ -45,14 +45,14 @@ func CreateUserTables(db *pgxpool.Pool) {
 
 func CreateMessageTable(db *pgxpool.Pool) {
 	_, err := db.Exec(context.Background(),
-		`DROP TABLE IF EXISTS MESSAGES;
-		CREATE TABLE MESSAGES(
-		MessageId varchar NOT NULL,
-		ConversationId varchar NOT NULL,
-		UserId varchar NOT NULL,
+		`DROP TABLE IF EXISTS messages;
+		CREATE TABLE messages(
+		message_id varchar NOT NULL,
+		conversation_id varchar NOT NULL,
+		user_id varchar NOT NULL,
 		message varchar NOT NULL,
-		createdAt timestamp,
-		PRIMARY KEY(messageId)
+		created_at timestamp,
+		PRIMARY KEY(message_id)
 	) `)
 
 	if err != nil {
@@ -62,14 +62,15 @@ func CreateMessageTable(db *pgxpool.Pool) {
 
 func CreateConversationSettingTable(db *pgxpool.Pool) {
 	_, err := db.Exec(context.Background(),
-		`DROP TABLE IF EXISTS CONVERSATION_SETTINGS;
-		CREATE TABLE CONVERSATION_SETTINGS(
-		ConversationId varchar NOT NULL,
-		ConversationName varchar,
-		ConversationType int NOT NULL, 
-		CreatedAt Timestamp,
-		lastMessage Timestamp,
-		PRIMARY KEY(ConversationId)
+		`DROP TABLE IF EXISTS conversation_settings;
+		CREATE TABLE conversation_settings(
+		conversation_id varchar NOT NULL,
+		conversation_name varchar,
+		conversation_type int NOT NULL, 
+		created_at Timestamp,
+    last_message varchar,
+		last_message_time Timestamp,
+		PRIMARY KEY(conversation_id)
 	) `)
 
 	if err != nil {
@@ -80,12 +81,12 @@ func CreateConversationSettingTable(db *pgxpool.Pool) {
 func CreateConversationUserTable(db *pgxpool.Pool) {
 
 	_, err := db.Exec(context.Background(),
-		`DROP TABLE IF EXISTS CONVERSATIONS;
-		CREATE TABLE CONVERSATIONS (
-		ConversationId varchar NOT NULL,
-		UserId varchar NOT NULL,
-		PermissionLevel int,
-		PRIMARY KEY(ConversationId, UserId)
+		`DROP TABLE IF EXISTS conversations;
+		CREATE TABLE conversations (
+	  conversation_id varchar NOT NULL,
+		user_id varchar NOT NULL,
+		permission_level int,
+		PRIMARY KEY(conversation_id, user_id)
 	) `)
 
 	if err != nil {

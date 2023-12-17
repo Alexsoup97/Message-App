@@ -20,7 +20,9 @@ func authenticate(storage *db.Storage) func(http.Handler) http.Handler {
 			cookie, err := r.Cookie("APIAuth")
 			if err != nil {
 				switch {
+
 				case errors.Is(err, http.ErrNoCookie):
+					log.Print(err)
 					http.Error(w, "Please login", http.StatusUnauthorized)
 				default:
 					log.Println(err)

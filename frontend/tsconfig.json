@@ -6,8 +6,8 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "paths": {
-           "@mui/material": ["./node_modules/@mui/joy"]
-      },
+      "@mui/material": ["./node_modules/@mui/joy"]
+    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -20,7 +20,6 @@
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"],

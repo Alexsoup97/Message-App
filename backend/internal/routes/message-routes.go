@@ -15,8 +15,11 @@ import (
 
 type IMessageService interface {
 	CreateMessage(mssg *models.Message, reqContext context.Context) error
-	CreateConversation(conversation *models.Conversation, reqContext context.Context) error
-	GetConversations(ctx context.Context)
+	CreateConversation(
+		conversation *models.NewConversationRequest,
+		reqContext context.Context,
+	) error
+	GetConversations(ctx context.Context) ([]models.UserConversation, error)
 }
 
 type MessageRouter struct {
@@ -64,13 +67,12 @@ func (router MessageRouter) createMessage(w http.ResponseWriter, r *http.Request
 
 func (router MessageRouter) createConversation(w http.ResponseWriter, r *http.Request) {
 
-	req := new(models.Conversation)
+	req := new(models.NewConversationRequest)
 
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		log.Print(err)
 	}
 
-	log.Print(req.PermissionLevel)
 	err := validate.Struct(req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -80,6 +82,7 @@ func (router MessageRouter) createConversation(w http.ResponseWriter, r *http.Re
 	err = router.messageService.CreateConversation(req, r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -87,11 +90,22 @@ func (router MessageRouter) createConversation(w http.ResponseWriter, r *http.Re
 
 func (router MessageRouter) getConversations(w http.ResponseWriter, r *http.Request) {
 
-	err := router.messageService.Get
+	convos, err := router.messageService.GetConversations(r.Context())
+
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "An error has occured", http.StatusInternalServerError)
+	}
+	WriteJSON(w, http.StatusOK, convos)
+
 }
 
 func heartbeat(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+	WriteJSON(
+		w,
+		http.StatusOK,
+		models.HeartBeatResponse{Username: r.Context().Value("User").(string)},
+	)
 }
 
 var upgrader = websocket.Upgrader{

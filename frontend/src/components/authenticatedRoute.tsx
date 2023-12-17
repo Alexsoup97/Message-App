@@ -1,11 +1,11 @@
-import {Navigate, Outlet} from 'react-router-dom'
-import { useContext } from 'react'
-import { AuthContext } from '../utils/authProvider'
-export function AuthenticatedRoutes(){
-   const isLoggedIn = useContext(AuthContext) 
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../utils/AuthProvider";
 
-    return(
-       isLoggedIn ? <Outlet/> : <Navigate to ="/SignIn"/> 
-    )
+export function AuthenticatedRoutes() {
+  const auth = useAuth();
+  if (auth !== null && auth.user !== "") {
+    return <Outlet />;
+  } else {
+    return <Navigate to="/SignIn" />;
+  }
 }
-

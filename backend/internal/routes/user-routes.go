@@ -44,7 +44,11 @@ func (router UserRouter) createAccount(w http.ResponseWriter, r *http.Request) {
 
 	var e *pgconn.PgError
 	if errors.As(err, &e) && e.Code == pgerrcode.UniqueViolation {
-		WriteJSON(w, http.StatusBadRequest, models.ErrorResponse{Message: "User already exist. Please enter a new username"})
+		WriteJSON(
+			w,
+			http.StatusBadRequest,
+			models.ErrorResponse{Message: "User already exist. Please enter a new username"},
+		)
 		return
 	}
 
