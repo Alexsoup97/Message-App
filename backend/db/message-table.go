@@ -55,7 +55,8 @@ func (repo MessageRepo) GetConversationsByUser(
 ) ([]models.UserConversation, error) {
 
 	query := `SELECT convos.conversation_id, conversation_name, last_message, last_message_time FROM (SELECT * FROM conversations WHERE user_id=$1) as convos
-	 RIGHT JOIN conversation_settings on	conversation_settings.conversation_id = convos.conversation_id`
+	 RIGHT JOIN conversation_settings on	conversation_settings.conversation_id = convos.conversation_id WHERE convos.conversation_id IS NOT NULL`
+
 	results, err := repo.db.Query(ctx, query, ctx.Value("User"))
 
 	defer results.Close()

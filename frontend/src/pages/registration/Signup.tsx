@@ -116,17 +116,19 @@ export function Signup() {
     );
   } else {
     return (
-      <Sheet variant="soft" sx={sheetStyle}>
-        <CheckCircle
-          style={{ fontSize: 75, color: "green", outline: "white" }}
-        />
-        <Typography level="h3" textAlign="center" sx={{ my: 3 }}>
-          Account created successfully
-        </Typography>
-        <Button variant="outlined" onClick={() => navigate("/")}>
-          Return to Sign In
-        </Button>
-      </Sheet>
+      <Box sx={gridBox}>
+        <Sheet variant="soft" sx={sheetStyle}>
+          <CheckCircle
+            style={{ fontSize: 75, color: "green", outline: "white" }}
+          />
+          <Typography level="h3" textAlign="center" sx={{ my: 3 }}>
+            Account created successfully
+          </Typography>
+          <Button variant="outlined" onClick={() => navigate("/Signin")}>
+            Return to Sign In
+          </Button>
+        </Sheet>
+      </Box>
     );
   }
 }

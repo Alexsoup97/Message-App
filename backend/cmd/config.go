@@ -28,7 +28,7 @@ func setupEndpoints(db *db.Storage, router chi.Router) {
 
 	//User Service
 	usrService := service.CreateUserService(db)
-	route := routes.CreateUserRouter(usrService)
+	route := routes.CreateUserRouter(usrService, db)
 	endpointContainers = append(endpointContainers, EndpointContainer{
 		service: usrService,
 		router:  route,

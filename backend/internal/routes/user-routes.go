@@ -1,10 +1,13 @@
 package routes
 
 import (
+	"context"
 	"errors"
 	"log"
 	"net/http"
 
+	"github.com/Alexsoup97/message-app/db"
+	"github.com/Alexsoup97/message-app/internal/middleware"
 	"github.com/Alexsoup97/message-app/internal/service"
 	"github.com/Alexsoup97/message-app/models"
 	"github.com/go-chi/chi/v5"
@@ -19,9 +22,10 @@ type UserRouter struct {
 type IUserService interface {
 	Login(username string, passwor string) (string, error)
 	CreateAccount(username string, password string) error
+	GetUsers(ctx context.Context) ([]string, error)
 }
 
-func CreateUserRouter(userService IUserService) chi.Router {
+func CreateUserRouter(userService IUserService, db *db.Storage) chi.Router {
 
 	userRouter := &UserRouter{
 		userService: userService,
@@ -30,7 +34,7 @@ func CreateUserRouter(userService IUserService) chi.Router {
 	chiRouter := chi.NewRouter()
 	chiRouter.Post("/", userRouter.login)
 	chiRouter.Post("/create", userRouter.createAccount)
-
+	chiRouter.With(middleware.AuthMiddleware(db)).Get("/users", userRouter.getUsers)
 	return chiRouter
 }
 
@@ -60,6 +64,18 @@ func (router UserRouter) createAccount(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (router UserRouter) getUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := router.userService.GetUsers(r.Context())
+	if err != nil {
+		log.Print(err)
+		http.Error(w, "An error has occured", http.StatusInternalServerError)
+		return
+	}
+
+	WriteJSON(w, http.StatusOK, users)
+
+}
+
 func (router UserRouter) login(w http.ResponseWriter, r *http.Request) {
 	user, pass := r.FormValue("username"), r.FormValue("password")
 
@@ -87,9 +103,5 @@ func (router UserRouter) login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, cookie)
-	w.WriteHeader(http.StatusOK)
-}
-
-func (router UserRouter) heartbeat(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }

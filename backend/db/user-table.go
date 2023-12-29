@@ -18,7 +18,12 @@ type UserRepo struct {
 }
 
 func (repo UserRepo) SaveUser(ctx context.Context, user User) error {
-	_, err := repo.db.Exec(ctx, "INSERT INTO USERS (username, password) VALUES($1, $2)", user.Username, user.PasswordHash)
+	_, err := repo.db.Exec(
+		ctx,
+		"INSERT INTO USERS (username, password) VALUES($1, $2)",
+		user.Username,
+		user.PasswordHash,
+	)
 	return err
 }
 
@@ -44,8 +49,34 @@ func (repo UserRepo) GetUserByName(ctx context.Context, username string) (User, 
 
 func (repo UserRepo) UpdateUserToken(ctx context.Context, user User) error {
 	user.Token.Valid = true
-	_, err := repo.db.Exec(ctx, "UPDATE USERS SET logintoken=$1 WHERE username=$2", user.Token, user.Username)
+	_, err := repo.db.Exec(
+		ctx,
+		"UPDATE USERS SET logintoken=$1 WHERE username=$2",
+		user.Token,
+		user.Username,
+	)
 	return err
+}
+
+func (repo UserRepo) GetAllUsers(ctx context.Context) ([]string, error) {
+
+	results, err := repo.db.Query(
+		ctx,
+		"SELECT (username) FROM users WHERE NOT username=$1",
+		ctx.Value("User"),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var usernames []string
+	for results.Next() {
+		var username string
+		results.Scan(&username)
+		usernames = append(usernames, username)
+	}
+
+	return usernames, nil
 }
 
 func (repo UserRepo) DeleteUser() {

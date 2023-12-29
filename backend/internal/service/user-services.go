@@ -68,6 +68,10 @@ func (user_serv UserService) Login(username string, password string) (string, er
 	return user.Token.String, nil
 }
 
+func (user_serv UserService) GetUsers(ctx context.Context) ([]string, error) {
+	return user_serv.database.UserRepo.GetAllUsers(ctx)
+}
+
 func generateRandomBytes(length int) string {
 	b := make([]byte, length)
 	_, err := rand.Read(b)

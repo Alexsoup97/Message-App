@@ -21,7 +21,7 @@ func CreateMessageService(db *db.Storage) *MessageService {
 func (message_serv MessageService) CreateConversation(
 	convo *models.NewConversationRequest,
 	ctx context.Context,
-) error {
+) (string, error) {
 
 	convoSettings := models.ConversationSettings{
 		ConversationName:  sql.NullString{String: convo.ConversationName, Valid: true},
@@ -30,7 +30,7 @@ func (message_serv MessageService) CreateConversation(
 
 	id, err := message_serv.database.MessageRepo.CreateConversationSettings(ctx, convoSettings)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	var convoUsers [][]interface{}
@@ -40,7 +40,7 @@ func (message_serv MessageService) CreateConversation(
 
 	convoUsers = append(convoUsers, []interface{}{id, ctx.Value("User"), 3})
 	err = message_serv.database.MessageRepo.AddUsersToConversation(ctx, convoUsers)
-	return err
+	return id.String(), err
 }
 
 func (message_serv MessageService) CreateMessage(mssg *models.Message, ctx context.Context) error {

@@ -18,7 +18,7 @@ type IMessageService interface {
 	CreateConversation(
 		conversation *models.NewConversationRequest,
 		reqContext context.Context,
-	) error
+	) (string, error)
 	GetConversations(ctx context.Context) ([]models.UserConversation, error)
 }
 
@@ -79,13 +79,14 @@ func (router MessageRouter) createConversation(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	err = router.messageService.CreateConversation(req, r.Context())
+	convo_id, err := router.messageService.CreateConversation(req, r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	WriteJSON(w, http.StatusCreated, models.CreateConversationResponse{ConversationId: convo_id})
+
 }
 
 func (router MessageRouter) getConversations(w http.ResponseWriter, r *http.Request) {
@@ -95,9 +96,10 @@ func (router MessageRouter) getConversations(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "An error has occured", http.StatusInternalServerError)
+		return
 	}
-	WriteJSON(w, http.StatusOK, convos)
 
+	WriteJSON(w, http.StatusOK, convos)
 }
 
 func heartbeat(w http.ResponseWriter, r *http.Request) {
