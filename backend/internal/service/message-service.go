@@ -60,3 +60,8 @@ func (message_serv MessageService) GetConversations(
 
 	return conversations, nil
 }
+
+func (message_serv MessageService) GetChatHistory(ctx context.Context) {
+
+	history, err := message_serv.database.MessageRepo.GetChatHistory()
+}

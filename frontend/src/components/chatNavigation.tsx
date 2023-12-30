@@ -24,8 +24,8 @@ export function ChatNavigation() {
     setSelected(convoId);
   }
 
-  const viewMessages = data.data ? (
-    data.data.map((message) => (
+  const viewMessages = data!.data ? (
+    data!.data.map((message:any) => (
       <ChatPreview
         key={message.ConversationId}
         previewMessage={message.LastMessage}
@@ -43,6 +43,7 @@ export function ChatNavigation() {
       sx={{
         height: "100vh",
         width: "25vw",
+        maxWidth:400,
         bgcolor: theme.vars.palette.neutral.softBg,
       }}
     >
@@ -50,13 +51,14 @@ export function ChatNavigation() {
         sx={{
           display: "flex",
           flexDirection: "columns",
-          my: 3,
+          my:3,
+          mx:3,
           gap: 2,
-          mx: 3,
           alignContent: "center",
+          overflowX: "hidden"
         }}
       >
-        <Input startDecorator={<Search />} placeholder="Search" />
+        <Input sx={{minWidth:0.85}} startDecorator={<Search />} placeholder="Search" />
 
         <IconButton onClick={() => setModal(true)}>
           <AddCircle />

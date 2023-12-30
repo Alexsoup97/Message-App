@@ -78,7 +78,7 @@ export function ConversationModal({ open, setOpen, setNewConvo }: any) {
     <br />
   );
 
-  function closeModal(added: string) {
+  function closeModal() {
     setUsersToAdd([]);
     setConversationName("");
     setOpen(false);

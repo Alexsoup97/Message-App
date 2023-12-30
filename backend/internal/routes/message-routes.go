@@ -8,6 +8,7 @@ import (
 
 	"github.com/Alexsoup97/message-app/db"
 	"github.com/Alexsoup97/message-app/internal/middleware"
+	"github.com/Alexsoup97/message-app/internal/service"
 	"github.com/Alexsoup97/message-app/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
@@ -102,6 +103,12 @@ func (router MessageRouter) getConversations(w http.ResponseWriter, r *http.Requ
 	WriteJSON(w, http.StatusOK, convos)
 }
 
+func (router MessageRouter) getChatHistory(w http.ResponseWriter, r *http.Request){
+
+
+
+}
+
 func heartbeat(w http.ResponseWriter, r *http.Request) {
 	WriteJSON(
 		w,
@@ -113,4 +120,18 @@ func heartbeat(w http.ResponseWriter, r *http.Request) {
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+}
+
+
+func serveWebsocket(hub *service.ChatHandler, w http.ResponseWriter, r *http.Request){
+  conn, err := upgrader.Upgrade(w, r, nil)
+
+  if(err != nil ){
+    log.Print(err)
+    return
+  }
+
+  client := &service.ChatClient{Conn:conn, Hub:hub}
+
+  hub.Register <- client
 }

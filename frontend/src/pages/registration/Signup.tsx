@@ -94,7 +94,7 @@ export function Signup() {
             </FormControl>
             <Typography level="body-sm">
               Already have an account?{" "}
-              <Link href="/" level="title-sm">
+              <Link href="Signin" level="title-sm">
                 Sign in!
               </Link>
             </Typography>

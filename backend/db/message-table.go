@@ -82,6 +82,12 @@ func (repo MessageRepo) GetConversationsByUser(
 	return conversations, nil
 }
 
-func (s Storage) GetMessages() {
+func (repo MessageRepo) GetChatHistory(ctx context.Context, convo_id string) error {
 
+	query := `SELECT * FROM messages WHERE conversation_id=$1`
+
+	results, err := repo.db.Query(ctx, query, convo_id)
+	if err != nil {
+		return err
+	}
 }

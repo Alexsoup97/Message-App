@@ -66,6 +66,7 @@ func (router UserRouter) createAccount(w http.ResponseWriter, r *http.Request) {
 
 func (router UserRouter) getUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := router.userService.GetUsers(r.Context())
+
 	if err != nil {
 		log.Print(err)
 		http.Error(w, "An error has occured", http.StatusInternalServerError)
